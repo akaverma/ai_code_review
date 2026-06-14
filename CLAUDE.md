@@ -137,6 +137,7 @@ tests/
 .github/workflows/
   ci.yml          lint, typecheck, format check, jest, build
   playwright.yml  installs chromium, runs Playwright E2E suite
+  deploy.yml      builds and deploys to Vercel on push to main
 ```
 
 ## 5. API Contract — `POST /api/review`
@@ -225,6 +226,16 @@ SplitPane,GithubIcon}.tsx`. `GithubIcon.tsx` was added after discovering
     `GEMINI_API_KEY` for builds. No changes to `lib/prompts.ts`,
     `lib/parsers.ts`, Redux slices, hooks, or any UI components — the JSON
     response schema and streaming UX are unchanged.
+21. **CI**: changed `.github/workflows/{ci,playwright}.yml`'s `GEMINI_API_KEY`
+    build env var from a hardcoded dummy value to `${{ secrets.GEMINI_API_KEY }}`,
+    pulling from the repo's Actions secret. Created
+    `.github/workflows/deploy.yml`, which on every push to `main` installs the
+    Vercel CLI and runs `vercel pull` / `vercel build --prod` / `vercel deploy
+--prebuilt --prod`, authenticated via the `VERCEL_TOKEN`, `VERCEL_ORG_ID`,
+    and `VERCEL_PROJECT_ID` repo secrets. The Gemini API key for the deployed
+    app is configured separately as an environment variable on the Vercel
+    project itself (not a GitHub secret), since `vercel pull` fetches it from
+    there at build time.
 
 ## 8. Verification Status
 
